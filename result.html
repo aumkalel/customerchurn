@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Prediction Result{% endblock %}
+{% block content %}
+<div class="slide-up">
+  <div class="mb-6">
+    <a href="/" class="inline-flex items-center gap-1 text-sm text-indigo-500 hover:text-indigo-600 transition mb-4"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>Back to Prediction</a>
+    <h1 class="text-2xl md:text-3xl font-bold"><span class="gradient-text">Prediction Result</span></h1>
+    <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Customer ID: <span class="font-mono text-indigo-500">{{ cid }}</span></p>
+  </div>
+
+  <!-- Risk Card -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <div class="lg:col-span-1">
+      <div class="rounded-2xl p-8 text-center {% if risk == 'High' %}risk-high{% elif risk == 'Medium' %}risk-medium{% else %}risk-low{% endif %} shadow-lg">
+        <p class="text-sm font-medium uppercase tracking-wider opacity-80 mb-2">Churn Risk</p>
+        <div class="w-28 h-28 mx-auto rounded-full border-4 border-white/30 flex items-center justify-center mb-4">
+          <span class="text-3xl font-black">{{ prob }}%</span>
+        </div>
+        <p class="text-2xl font-bold mb-1">{{ risk }} Risk</p>
+        <p class="text-sm opacity-80">Prediction: {{ "Will Churn" if pred == "Yes" else "Will Stay" }}</p>
+      </div>
+    </div>
+
+    <!-- Details -->
+    <div class="lg:col-span-2 bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-gray-200/50 dark:border-white/5 shadow-sm">
+      <h3 class="font-semibold mb-4">Customer Summary</h3>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {% set items = [("Gender", data.gender), ("Senior", "Yes" if data.SeniorCitizen == 1 else "No"), ("Partner", data.Partner), ("Tenure", data.tenure|string + " mo"), ("Contract", data.Contract), ("Monthly", "$" + data.MonthlyCharges|string), ("Internet", data.InternetService), ("Payment", data.PaymentMethod), ("Total", "$" + data.TotalCharges|string)] %}
+        {% for label, value in items %}
+        <div class="p-3 rounded-xl bg-gray-50 dark:bg-slate-700/30">
+          <p class="text-xs text-gray-500 dark:text-gray-400">{{ label }}</p>
+          <p class="text-sm font-semibold mt-0.5 truncate">{{ value }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Feature Importance & Recommendations -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-gray-200/50 dark:border-white/5 shadow-sm">
+      <h3 class="font-semibold mb-4 flex items-center gap-2"><svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Feature Importance</h3>
+      <div class="space-y-3">
+        {% for name, imp in features %}
+        <div>
+          <div class="flex justify-between text-xs mb-1"><span class="font-medium">{{ name }}</span><span class="text-gray-500">{{ (imp * 100)|round(1) }}%</span></div>
+          <div class="w-full h-2 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div class="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-1000" style="width:{{ (imp / features[0][1] * 100)|round }}%"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-gray-200/50 dark:border-white/5 shadow-sm">
+      <h3 class="font-semibold mb-4 flex items-center gap-2">
+        <svg class="w-5 h-5 {% if risk == 'High' %}text-red-500{% elif risk == 'Medium' %}text-amber-500{% else %}text-emerald-500{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Recommendations
+      </h3>
+      <div class="space-y-2.5">
+        {% for rec in recommendations %}
+        <div class="flex items-start gap-3 p-3 rounded-xl bg-gray-50 dark:bg-slate-700/30">
+          <div class="w-6 h-6 rounded-full {% if risk == 'High' %}bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400{% elif risk == 'Medium' %}bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400{% else %}bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400{% endif %} flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">{{ loop.index }}</div>
+          <p class="text-sm">{{ rec }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert for High Risk -->
+  {% if risk == 'High' %}
+  <div class="mt-6 p-4 rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-center gap-3">
+    <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0"><svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
+    <div><p class="text-sm font-semibold text-red-700 dark:text-red-400">High Risk Alert</p><p class="text-xs text-red-600 dark:text-red-300">This customer has a high probability of churning. Immediate action is recommended.</p></div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

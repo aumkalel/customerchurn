@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChurnGuard AI - {% block title %}Dashboard{% endblock %}</title>
+    <meta name="description" content="AI-powered customer churn prediction platform with ML analytics and intelligent chatbot assistant.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+    tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Inter','sans-serif']}}}}
+    </script>
+    <style>
+        *{scrollbar-width:thin;scrollbar-color:#4f46e5 transparent}
+        ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#4f46e5;border-radius:3px}
+        .glass{background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08)}
+        .glass-light{background:rgba(255,255,255,0.8);backdrop-filter:blur(20px);border:1px solid rgba(0,0,0,0.06)}
+        .gradient-text{background:linear-gradient(135deg,#818cf8,#6366f1,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .card-hover{transition:all .3s cubic-bezier(.4,0,.2,1)}
+        .card-hover:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(99,102,241,0.15)}
+        .pulse-dot{animation:pulse-dot 2s infinite}
+        @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+        .slide-up{animation:slideUp .4s cubic-bezier(.4,0,.2,1)}
+        @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        .sidebar-link{position:relative;overflow:hidden}
+        .sidebar-link::before{content:'';position:absolute;left:0;top:0;height:100%;width:3px;background:linear-gradient(180deg,#818cf8,#6366f1);transform:scaleY(0);transition:transform .3s}
+        .sidebar-link:hover::before,.sidebar-link.active::before{transform:scaleY(1)}
+        .chat-bubble{animation:bubbleIn .3s cubic-bezier(.4,0,.2,1)}
+        @keyframes bubbleIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+        .loading-dots span{animation:loadDot 1.4s infinite;opacity:0}
+        .loading-dots span:nth-child(2){animation-delay:.2s}
+        .loading-dots span:nth-child(3){animation-delay:.4s}
+        @keyframes loadDot{0%,60%,100%{opacity:0}30%{opacity:1}}
+        .risk-high{background:linear-gradient(135deg,#ef4444,#dc2626);color:white}
+        .risk-medium{background:linear-gradient(135deg,#f59e0b,#d97706);color:white}
+        .risk-low{background:linear-gradient(135deg,#10b981,#059669);color:white}
+        input[type="number"]::-webkit-inner-spin-button{opacity:1}
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-[#0c1222] font-sans text-gray-900 dark:text-gray-100 transition-colors duration-300 min-h-screen">
+<!-- Navbar -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 glass-light dark:glass border-b border-gray-200/50 dark:border-white/5">
+  <div class="flex items-center justify-between px-4 lg:px-6 h-16">
+    <div class="flex items-center gap-3">
+      <button id="menuBtn" class="lg:hidden p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
+        <span class="text-lg font-bold gradient-text hidden sm:inline">ChurnGuard AI</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="darkToggle" class="p-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition" title="Toggle theme">
+        <svg id="sunIcon" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <svg id="moonIcon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+      </button>
+      <div class="flex items-center gap-2">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-white/5 border border-indigo-100 dark:border-white/10">
+          <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">{{ session.get('username', 'U')[0]|upper }}</div>
+          <span class="text-xs font-medium text-indigo-700 dark:text-indigo-300 max-w-[100px] truncate">{{ session.get('username', 'User') }}</span>
+        </div>
+        <a href="/logout" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition" title="Logout">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span class="hidden sm:inline">Logout</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="fixed top-16 left-0 bottom-0 w-64 glass-light dark:glass border-r border-gray-200/50 dark:border-white/5 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300">
+  <div class="flex flex-col h-full p-4">
+    <div class="space-y-1 flex-1">
+      <a href="/" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-indigo-50 dark:hover:bg-white/5 transition {% if request.path == '/' %}bg-indigo-50 dark:bg-white/10 text-indigo-600 dark:text-indigo-400 active{% endif %}">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Predict Churn
+      </a>
+      <a href="/dashboard" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-indigo-50 dark:hover:bg-white/5 transition {% if request.path == '/dashboard' %}bg-indigo-50 dark:bg-white/10 text-indigo-600 dark:text-indigo-400 active{% endif %}">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Dashboard
+      </a>
+      <a href="/customers" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-indigo-50 dark:hover:bg-white/5 transition {% if request.path == '/customers' %}bg-indigo-50 dark:bg-white/10 text-indigo-600 dark:text-indigo-400 active{% endif %}">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Customers
+      </a>
+      <a href="/alerts" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-indigo-50 dark:hover:bg-white/5 transition {% if request.path == '/alerts' %}bg-indigo-50 dark:bg-white/10 text-indigo-600 dark:text-indigo-400 active{% endif %}">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        Alerts
+      </a>
+    </div>
+    <div class="p-4 rounded-2xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
+      <p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400">ChurnGuard AI v1.0</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">ML-Powered Analytics</p>
+    </div>
+  </div>
+</aside>
+
+<!-- Overlay -->
+<div id="overlay" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden" onclick="toggleSidebar()"></div>
+
+<!-- Main -->
+<main class="lg:ml-64 pt-16 min-h-screen">
+  <div class="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+    {% block content %}{% endblock %}
+  </div>
+</main>
+
+<!-- Chatbot -->
+<div id="chatBtn" onclick="toggleChat()" class="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white flex items-center justify-center shadow-lg shadow-indigo-500/30 cursor-pointer hover:scale-110 transition-transform">
+  <svg id="chatOpenIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+  <svg id="chatCloseIcon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+</div>
+
+<div id="chatWindow" class="fixed bottom-24 right-6 z-50 w-[360px] max-w-[calc(100vw-2rem)] rounded-2xl shadow-2xl shadow-black/20 overflow-hidden transition-all duration-300 origin-bottom-right scale-0 opacity-0">
+  <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 flex items-center gap-3">
+    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
+    <div><p class="text-white font-semibold text-sm">ChurnGuard Assistant</p><p class="text-white/70 text-xs flex items-center gap-1"><span class="w-2 h-2 bg-green-400 rounded-full pulse-dot"></span>Online</p></div>
+  </div>
+  <div id="chatMessages" class="h-80 overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-[#0f172a]">
+    <div class="chat-bubble flex gap-2"><div class="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center shrink-0"><svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div><div class="bg-white dark:bg-slate-800 rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm max-w-[260px] shadow-sm">Hi! I'm your AI assistant. Ask me about churn predictions, risk factors, or retention strategies!</div></div>
+  </div>
+  <div class="p-3 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-white/10">
+    <form onsubmit="sendChat(event)" class="flex gap-2">
+      <input id="chatInput" type="text" placeholder="Ask me anything..." class="flex-1 px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 border-0">
+      <button type="submit" class="p-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:shadow-lg transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg></button>
+    </form>
+  </div>
+</div>
+
+<script>
+// Dark mode
+const html=document.documentElement;
+if(localStorage.getItem('theme')==='light')html.classList.remove('dark');
+document.getElementById('darkToggle').onclick=()=>{html.classList.toggle('dark');localStorage.setItem('theme',html.classList.contains('dark')?'dark':'light')};
+
+// Sidebar
+function toggleSidebar(){
+  const s=document.getElementById('sidebar'),o=document.getElementById('overlay');
+  s.classList.toggle('-translate-x-full');o.classList.toggle('hidden');
+}
+document.getElementById('menuBtn').onclick=toggleSidebar;
+
+// Chat
+let chatOpen=false;
+function toggleChat(){
+  chatOpen=!chatOpen;
+  const w=document.getElementById('chatWindow'),o=document.getElementById('chatOpenIcon'),c=document.getElementById('chatCloseIcon');
+  if(chatOpen){w.classList.remove('scale-0','opacity-0');w.classList.add('scale-100','opacity-100');o.classList.add('hidden');c.classList.remove('hidden')}
+  else{w.classList.add('scale-0','opacity-0');w.classList.remove('scale-100','opacity-100');o.classList.remove('hidden');c.classList.add('hidden')}
+}
+function addMsg(text,isUser){
+  const d=document.getElementById('chatMessages'),m=document.createElement('div');
+  m.className='chat-bubble flex gap-2'+(isUser?' justify-end':'');
+  const lines=text.replace(/\n/g,'<br>');
+  if(isUser)m.innerHTML=`<div class="bg-indigo-500 text-white rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm max-w-[260px]">${lines}</div>`;
+  else m.innerHTML=`<div class="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center shrink-0"><svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div><div class="bg-white dark:bg-slate-800 rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm max-w-[260px] shadow-sm">${lines}</div>`;
+  d.appendChild(m);d.scrollTop=d.scrollHeight;
+}
+function showTyping(){
+  const d=document.getElementById('chatMessages'),m=document.createElement('div');
+  m.id='typing';m.className='chat-bubble flex gap-2';
+  m.innerHTML=`<div class="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center shrink-0"><svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div><div class="bg-white dark:bg-slate-800 rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm loading-dots"><span>.</span><span>.</span><span>.</span></div>`;
+  d.appendChild(m);d.scrollTop=d.scrollHeight;
+}
+async function sendChat(e){
+  e.preventDefault();const inp=document.getElementById('chatInput'),msg=inp.value.trim();
+  if(!msg)return;addMsg(msg,true);inp.value='';showTyping();
+  try{const r=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})});
+  const data=await r.json();document.getElementById('typing')?.remove();addMsg(data.reply,false)}
+  catch(err){document.getElementById('typing')?.remove();addMsg('Sorry, something went wrong.',false)}
+}
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

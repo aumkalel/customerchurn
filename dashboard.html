@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Analytics Dashboard{% endblock %}
+{% block content %}
+<div class="slide-up">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold"><span class="gradient-text">Analytics Dashboard</span></h1>
+      <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Real-time churn analytics and insights</p>
+    </div>
+    <a href="/export-csv" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-600 transition">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>Export CSV
+    </a>
+  </div>
+
+  <!-- KPI Cards -->
+  <div id="kpiCards" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-5 border border-gray-200/50 dark:border-white/5 card-hover shadow-sm">
+      <div class="flex items-center justify-between mb-3"><div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center"><svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div></div>
+      <p class="text-2xl font-bold" id="kpiTotal">--</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Total Customers</p>
+    </div>
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-5 border border-gray-200/50 dark:border-white/5 card-hover shadow-sm">
+      <div class="flex items-center justify-between mb-3"><div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center"><svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg></div></div>
+      <p class="text-2xl font-bold" id="kpiRate">--</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Churn Rate</p>
+    </div>
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-5 border border-gray-200/50 dark:border-white/5 card-hover shadow-sm">
+      <div class="flex items-center justify-between mb-3"><div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center"><svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div></div>
+      <p class="text-2xl font-bold" id="kpiTenure">--</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Avg Tenure (mo)</p>
+    </div>
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-5 border border-gray-200/50 dark:border-white/5 card-hover shadow-sm">
+      <div class="flex items-center justify-between mb-3"><div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center"><svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div></div>
+      <p class="text-2xl font-bold" id="kpiCharges">--</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Avg Monthly ($)</p>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-gray-200/50 dark:border-white/5 shadow-sm">
+      <h3 class="font-semibold mb-4 text-sm">Churn Distribution</h3>
+      <div class="relative h-64"><canvas id="churnPie"></canvas></div>
+    </div>
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-gray-200/50 dark:border-white/5 shadow-sm">
+      <h3 class="font-semibold mb-4 text-sm">Churn by Contract Type</h3>
+      <div class="relative h-64"><canvas id="contractBar"></canvas></div>
+    </div>
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-gray-200/50 dark:border-white/5 shadow-sm">
+      <h3 class="font-semibold mb-4 text-sm">Churn by Internet Service</h3>
+      <div class="relative h-64"><canvas id="internetBar"></canvas></div>
+    </div>
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-gray-200/50 dark:border-white/5 shadow-sm">
+      <h3 class="font-semibold mb-4 text-sm">Risk Category Breakdown</h3>
+      <div class="relative h-64"><canvas id="riskDoughnut"></canvas></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const isDark=()=>document.documentElement.classList.contains('dark');
+const txtColor=()=>isDark()?'#94a3b8':'#64748b';
+const gridColor=()=>isDark()?'rgba(148,163,184,0.1)':'rgba(0,0,0,0.06)';
+Chart.defaults.color=txtColor();Chart.defaults.font.family='Inter';
+
+async function loadDashboard(){
+  const r=await fetch('/api/dashboard-data');const d=await r.json();
+  document.getElementById('kpiTotal').textContent=d.total.toLocaleString();
+  document.getElementById('kpiRate').textContent=d.churn_rate+'%';
+  document.getElementById('kpiTenure').textContent=d.avg_tenure;
+  document.getElementById('kpiCharges').textContent='$'+d.avg_monthly;
+
+  // Pie
+  new Chart(document.getElementById('churnPie'),{type:'doughnut',data:{labels:['Retained','Churned'],datasets:[{data:[d.total-d.churned,d.churned],backgroundColor:['#6366f1','#ef4444'],borderWidth:0,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{padding:20,usePointStyle:true,pointStyleWidth:10}}}}});
+
+  // Contract
+  const contracts=['Month-to-month','One year','Two year'];
+  const cChurn=contracts.map(c=>{const f=d.by_contract.find(x=>x.contract===c&&x.churn_prediction==='Yes');return f?f.cnt:0});
+  const cRetain=contracts.map(c=>{const f=d.by_contract.find(x=>x.contract===c&&x.churn_prediction==='No');return f?f.cnt:0});
+  new Chart(document.getElementById('contractBar'),{type:'bar',data:{labels:contracts,datasets:[{label:'Retained',data:cRetain,backgroundColor:'#6366f1',borderRadius:6},{label:'Churned',data:cChurn,backgroundColor:'#ef4444',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false}},y:{grid:{color:gridColor()},beginAtZero:true}},plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyleWidth:10,padding:15}}}}});
+
+  // Internet
+  const nets=['No','DSL','Fiber optic'];
+  const iChurn=nets.map(n=>{const f=d.by_internet.find(x=>x.internet_service===n&&x.churn_prediction==='Yes');return f?f.cnt:0});
+  const iRetain=nets.map(n=>{const f=d.by_internet.find(x=>x.internet_service===n&&x.churn_prediction==='No');return f?f.cnt:0});
+  new Chart(document.getElementById('internetBar'),{type:'bar',data:{labels:nets,datasets:[{label:'Retained',data:iRetain,backgroundColor:'#818cf8',borderRadius:6},{label:'Churned',data:iChurn,backgroundColor:'#f87171',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{grid:{display:false}},y:{grid:{color:gridColor()},beginAtZero:true}},plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyleWidth:10,padding:15}}}}});
+
+  // Risk
+  const riskData={'Low':0,'Medium':0,'High':0};
+  d.by_risk.forEach(r=>{if(r.risk_category in riskData)riskData[r.risk_category]=r.cnt});
+  new Chart(document.getElementById('riskDoughnut'),{type:'doughnut',data:{labels:['Low Risk','Medium Risk','High Risk'],datasets:[{data:[riskData.Low,riskData.Medium,riskData.High],backgroundColor:['#10b981','#f59e0b','#ef4444'],borderWidth:0,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{padding:20,usePointStyle:true,pointStyleWidth:10}}}}});
+}
+loadDashboard();
+</script>
+{% endblock %}

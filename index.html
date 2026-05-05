@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Predict Customer Churn{% endblock %}
+{% block content %}
+<div class="slide-up">
+  <div class="mb-8">
+    <h1 class="text-2xl md:text-3xl font-bold"><span class="gradient-text">Predict Customer Churn</span></h1>
+    <p class="text-gray-500 dark:text-gray-400 mt-2 text-sm">Enter customer details to predict churn risk using AI</p>
+  </div>
+
+  <form action="/predict" method="POST" id="predictForm">
+    <!-- Personal Info -->
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 mb-6 border border-gray-200/50 dark:border-white/5 card-hover shadow-sm">
+      <h2 class="text-lg font-semibold mb-4 flex items-center gap-2"><svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>Personal Information</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Gender</label><select name="gender" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"><option>Male</option><option>Female</option></select></div>
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Senior Citizen</label><select name="SeniorCitizen" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"><option value="0">No</option><option value="1">Yes</option></select></div>
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Partner</label><select name="Partner" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"><option>No</option><option>Yes</option></select></div>
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Dependents</label><select name="Dependents" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"><option>No</option><option>Yes</option></select></div>
+      </div>
+    </div>
+
+    <!-- Account Info -->
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 mb-6 border border-gray-200/50 dark:border-white/5 card-hover shadow-sm">
+      <h2 class="text-lg font-semibold mb-4 flex items-center gap-2"><svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>Account Details</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Tenure (months)</label><input name="tenure" type="number" min="0" max="72" value="12" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"></div>
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Contract</label><select name="Contract" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"><option>Month-to-month</option><option>One year</option><option>Two year</option></select></div>
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Monthly Charges ($)</label><input name="MonthlyCharges" type="number" step="0.01" min="0" value="50" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"></div>
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Total Charges ($)</label><input name="TotalCharges" type="number" step="0.01" min="0" value="600" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"></div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Paperless Billing</label><select name="PaperlessBilling" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"><option>Yes</option><option>No</option></select></div>
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Payment Method</label><select name="PaymentMethod" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"><option>Electronic check</option><option>Mailed check</option><option>Bank transfer (automatic)</option><option>Credit card (automatic)</option></select></div>
+      </div>
+    </div>
+
+    <!-- Services -->
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 mb-6 border border-gray-200/50 dark:border-white/5 card-hover shadow-sm">
+      <h2 class="text-lg font-semibold mb-4 flex items-center gap-2"><svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>Services</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Phone Service</label><select name="PhoneService" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"><option>Yes</option><option>No</option></select></div>
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Multiple Lines</label><select name="MultipleLines" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"><option>No</option><option>Yes</option><option>No phone service</option></select></div>
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Internet Service</label><select name="InternetService" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"><option>Fiber optic</option><option>DSL</option><option>No</option></select></div>
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Online Security</label><select name="OnlineSecurity" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"><option>No</option><option>Yes</option><option>No internet service</option></select></div>
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Online Backup</label><select name="OnlineBackup" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"><option>No</option><option>Yes</option><option>No internet service</option></select></div>
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Device Protection</label><select name="DeviceProtection" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"><option>No</option><option>Yes</option><option>No internet service</option></select></div>
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Tech Support</label><select name="TechSupport" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"><option>No</option><option>Yes</option><option>No internet service</option></select></div>
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Streaming TV</label><select name="StreamingTV" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"><option>No</option><option>Yes</option><option>No internet service</option></select></div>
+        <div><label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Streaming Movies</label><select name="StreamingMovies" class="w-full px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-white/10 text-sm focus:ring-2 focus:ring-indigo-500"><option>No</option><option>Yes</option><option>No internet service</option></select></div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="flex flex-col sm:flex-row gap-4">
+      <button type="submit" id="submitBtn" class="flex-1 sm:flex-none px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold hover:shadow-lg hover:shadow-indigo-500/25 transition-all flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        <span id="btnText">Predict Churn Risk</span>
+        <svg id="btnSpinner" class="w-5 h-5 animate-spin hidden" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+      </button>
+    </div>
+  </form>
+
+  <!-- CSV Upload -->
+  <div class="mt-8 bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-gray-200/50 dark:border-white/5 shadow-sm">
+    <h2 class="text-lg font-semibold mb-4 flex items-center gap-2"><svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>Bulk Prediction (CSV Upload)</h2>
+    <form id="csvForm" enctype="multipart/form-data" class="flex flex-col sm:flex-row gap-3">
+      <input type="file" name="file" accept=".csv" class="flex-1 text-sm file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-indigo-50 dark:file:bg-indigo-900/30 file:text-indigo-600 dark:file:text-indigo-400 file:font-medium hover:file:bg-indigo-100 cursor-pointer">
+      <button type="submit" class="px-6 py-2.5 rounded-xl bg-amber-500 text-white font-medium hover:bg-amber-600 transition text-sm">Upload & Predict</button>
+    </form>
+    <div id="csvResult" class="mt-4 hidden"></div>
+  </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('predictForm').onsubmit=function(){
+  document.getElementById('btnText').textContent='Analyzing...';
+  document.getElementById('btnSpinner').classList.remove('hidden');
+  document.getElementById('submitBtn').disabled=true;
+};
+document.getElementById('csvForm').onsubmit=async function(e){
+  e.preventDefault();
+  const fd=new FormData(this);const r=await fetch('/upload-csv',{method:'POST',body:fd});
+  const d=await r.json();const el=document.getElementById('csvResult');el.classList.remove('hidden');
+  if(d.error){el.innerHTML=`<p class="text-red-500 text-sm">${d.error}</p>`;return}
+  let high=d.results.filter(x=>x.risk==='High').length;
+  el.innerHTML=`<div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800"><p class="text-sm font-medium text-emerald-700 dark:text-emerald-400">${d.count} customers processed. ${high} high-risk detected.</p></div>`;
+};
+</script>
+{% endblock %}

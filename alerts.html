@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Alerts{% endblock %}
+{% block content %}
+<div class="slide-up">
+  <div class="mb-8">
+    <h1 class="text-2xl md:text-3xl font-bold"><span class="gradient-text">Risk Alerts</span></h1>
+    <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">Prioritized list of at-risk customers requiring immediate attention</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-5 border border-red-200/50 dark:border-red-900/30 shadow-sm relative overflow-hidden">
+      <div class="absolute right-0 top-0 w-24 h-24 bg-red-500/10 rounded-bl-full"></div>
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
+        <h3 class="font-semibold text-sm">High Risk</h3>
+      </div>
+      <p class="text-3xl font-bold text-red-600 dark:text-red-400" id="highCount">--</p>
+    </div>
+    
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-5 border border-amber-200/50 dark:border-amber-900/30 shadow-sm relative overflow-hidden">
+      <div class="absolute right-0 top-0 w-24 h-24 bg-amber-500/10 rounded-bl-full"></div>
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-amber-600 dark:text-amber-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+        <h3 class="font-semibold text-sm">Medium Risk</h3>
+      </div>
+      <p class="text-3xl font-bold text-amber-600 dark:text-amber-400" id="mediumCount">--</p>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-5 border border-gray-200/50 dark:border-white/5 shadow-sm relative overflow-hidden">
+      <div class="absolute right-0 top-0 w-24 h-24 bg-indigo-500/10 rounded-bl-full"></div>
+      <div class="flex items-center gap-3 mb-2">
+        <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/></svg></div>
+        <h3 class="font-semibold text-sm">Total Churned</h3>
+      </div>
+      <p class="text-3xl font-bold text-indigo-600 dark:text-indigo-400" id="churnedCount">--</p>
+    </div>
+  </div>
+
+  <div class="space-y-6">
+    <!-- High Risk Section -->
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl border border-red-200/50 dark:border-red-900/30 shadow-sm overflow-hidden">
+      <div class="bg-red-50 dark:bg-red-900/10 px-6 py-4 border-b border-red-100 dark:border-red-900/20 flex items-center justify-between">
+        <h2 class="font-semibold text-red-700 dark:text-red-400 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          CRITICAL: High Risk Customers
+        </h2>
+      </div>
+      <div class="p-0">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <tbody id="highRiskTable">
+              <tr><td class="p-6 text-center text-gray-500">Loading alerts...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Medium Risk Section -->
+    <div class="bg-white dark:bg-slate-800/50 rounded-2xl border border-amber-200/50 dark:border-amber-900/30 shadow-sm overflow-hidden">
+      <div class="bg-amber-50 dark:bg-amber-900/10 px-6 py-4 border-b border-amber-100 dark:border-amber-900/20 flex items-center justify-between">
+        <h2 class="font-semibold text-amber-700 dark:text-amber-400 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          WARNING: Medium Risk Customers (Top 20)
+        </h2>
+      </div>
+      <div class="p-0">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <tbody id="mediumRiskTable">
+              <tr><td class="p-6 text-center text-gray-500">Loading alerts...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadAlerts() {
+  const r = await fetch('/api/alerts');
+  const d = await r.json();
+  
+  document.getElementById('highCount').textContent = d.stats.high_count;
+  document.getElementById('mediumCount').textContent = d.stats.medium_count;
+  document.getElementById('churnedCount').textContent = d.stats.churned;
+
+  function createRow(c, type) {
+    const isHigh = type === 'High';
+    const color = isHigh ? 'red' : 'amber';
+    return `
+      <tr class="border-b border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition group">
+        <td class="py-4 px-6">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-${color}-100 dark:bg-${color}-900/30 flex items-center justify-center shrink-0">
+              <span class="text-sm font-bold text-${color}-600 dark:text-${color}-400">${c.churn_probability}%</span>
+            </div>
+            <div>
+              <p class="font-mono text-sm font-semibold text-gray-900 dark:text-white">${c.customer_id}</p>
+              <p class="text-xs text-gray-500 mt-0.5">${c.contract} &bull; $${c.monthly_charges}/mo &bull; ${c.tenure} months</p>
+            </div>
+          </div>
+        </td>
+        <td class="py-4 px-6 text-right">
+          <a href="/customer/${c.id}" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white dark:bg-slate-700 border border-gray-200 dark:border-white/10 text-xs font-semibold hover:bg-${color}-50 dark:hover:bg-${color}-900/20 hover:text-${color}-600 dark:hover:text-${color}-400 transition shadow-sm">
+            View Profile
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </td>
+      </tr>
+    `;
+  }
+
+  const highTbody = document.getElementById('highRiskTable');
+  if (d.high_risk.length === 0) {
+    highTbody.innerHTML = `<tr><td class="p-8 text-center text-gray-500 text-sm"><div class="flex flex-col items-center gap-2"><svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>No high risk customers detected!</div></td></tr>`;
+  } else {
+    highTbody.innerHTML = d.high_risk.map(c => createRow(c, 'High')).join('');
+  }
+
+  const mediumTbody = document.getElementById('mediumRiskTable');
+  if (d.medium_risk.length === 0) {
+    mediumTbody.innerHTML = `<tr><td class="p-8 text-center text-gray-500 text-sm"><div class="flex flex-col items-center gap-2"><svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>No medium risk customers detected!</div></td></tr>`;
+  } else {
+    mediumTbody.innerHTML = d.medium_risk.map(c => createRow(c, 'Medium')).join('');
+  }
+}
+
+loadAlerts();
+</script>
+{% endblock %}
